@@ -11,6 +11,8 @@
     <File Path="publish.ps1" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="src/SyntaxCircus.Maui.AgeAssurance.Android.Binding/SyntaxCircus.Maui.AgeAssurance.Android.Binding.csproj" />
+  <Project Path="src/SyntaxCircus.Maui.AgeAssurance.iOS.Binding/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.csproj" />
   <Project Path="src/SyntaxCircus.Maui.AgeAssurance/SyntaxCircus.Maui.AgeAssurance.csproj" />
   <Project Path="tests/SyntaxCircus.Maui.AgeAssurance.Tests/SyntaxCircus.Maui.AgeAssurance.Tests.csproj" />
 </Solution>

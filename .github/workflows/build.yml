@@ -25,9 +25,26 @@ jobs:
       - run: dotnet build SyntaxCircus.Maui.AgeAssurance.slnx --no-restore --configuration Release
       - run: dotnet test --solution SyntaxCircus.Maui.AgeAssurance.slnx --no-build --configuration Release
 
+      # Pack on every run (not just main) so packaging breaks show up on the PR; only main uploads and publishes.
       - name: Pack
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: dotnet pack SyntaxCircus.Maui.AgeAssurance.slnx --no-build --configuration Release --output artifacts
+
+      # The bindings are private and ship inside the main package; fail if any native payload went missing.
+      - name: Verify package contents
+        run: |
+          package_path=$(find artifacts -maxdepth 1 -type f -name '*.nupkg' ! -name '*.snupkg' | head -n 1)
+          listing=$(unzip -Z1 "$package_path")
+          for pattern in \
+            'lib/net10.0/SyntaxCircus.Maui.AgeAssurance.dll' \
+            'lib/net10.0-android[0-9.]*/SyntaxCircus.Maui.AgeAssurance.Android.Binding.dll' \
+            'lib/net10.0-android[0-9.]*/age-signals-[0-9.]*.aar' \
+            'lib/net10.0-ios[0-9.]*/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.dll' \
+            'lib/net10.0-ios[0-9.]*/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.resources.zip'; do
+            if ! grep -Eq "^${pattern}$" <<< "$listing"; then
+              echo "::error::Package is missing ${pattern}"
+              exit 1
+            fi
+          done
 
       - name: Upload package artifact
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
