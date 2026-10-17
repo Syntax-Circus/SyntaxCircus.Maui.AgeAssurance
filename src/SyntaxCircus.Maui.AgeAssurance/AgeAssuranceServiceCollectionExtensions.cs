@@ -15,11 +15,9 @@ public static class AgeAssuranceServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
 #if IOS
-        // TODO(native step): register the Apple Declared Age Range provider here.
-        services.TryAddSingleton<IAgeAssuranceProvider, UnavailableAgeAssuranceProvider>();
+        services.TryAddSingleton<IAgeAssuranceProvider, AppleAgeAssuranceProvider>();
 #elif ANDROID
-        // TODO(native step): register the Google Play Age Signals provider here.
-        services.TryAddSingleton<IAgeAssuranceProvider, UnavailableAgeAssuranceProvider>();
+        services.TryAddSingleton<IAgeAssuranceProvider, PlayAgeAssuranceProvider>();
 #else
         services.TryAddSingleton<IAgeAssuranceProvider, UnavailableAgeAssuranceProvider>();
 #endif

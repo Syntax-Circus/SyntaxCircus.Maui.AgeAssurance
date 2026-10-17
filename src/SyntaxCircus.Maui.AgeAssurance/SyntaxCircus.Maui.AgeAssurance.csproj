@@ -29,6 +29,21 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="GitVersion.MsBuild" PrivateAssets="all" />
   </ItemGroup>
+  <!-- Android: the Play Age Signals binding is a private project whose assembly ships inside this package
+       (see _IncludeBindingAssemblies); its Java dependencies flow to consumers as normal NuGet dependencies. -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <ProjectReference Include="..\SyntaxCircus.Maui.AgeAssurance.Android.Binding\SyntaxCircus.Maui.AgeAssurance.Android.Binding.csproj" PrivateAssets="all" />
+    <PackageReference Include="Xamarin.GooglePlayServices.Tasks" />
+    <PackageReference Include="Xamarin.Google.Android.Play.Core.Common" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_IncludeBindingAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="_IncludeBindingAssemblies">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>

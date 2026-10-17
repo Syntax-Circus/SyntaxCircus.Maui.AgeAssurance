@@ -3,10 +3,18 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- Java dependencies of com.google.android.play:age-signals 0.0.4 (Android binding project only). -->
+    <PlayServicesTasksVersion>118.3.0.2</PlayServicesTasksVersion>
+    <PlayCoreCommonVersion>2.0.4.11</PlayCoreCommonVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.70" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageVersion Include="GitVersion.MsBuild" Version="6.6.0" />
+
+    <PackageVersion Include="Xamarin.GooglePlayServices.Tasks" Version="$(PlayServicesTasksVersion)" />
+    <PackageVersion Include="Xamarin.Google.Android.Play.Core.Common" Version="$(PlayCoreCommonVersion)" />
 
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
