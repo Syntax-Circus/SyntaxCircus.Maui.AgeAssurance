@@ -1,5 +1,7 @@
 # SyntaxCircus.Maui.AgeAssurance
 
+[![NuGet](https://img.shields.io/nuget/v/SyntaxCircus.Maui.AgeAssurance.svg)](https://www.nuget.org/packages/SyntaxCircus.Maui.AgeAssurance)
+
 Reusable age signals for .NET MAUI apps on iOS (Apple Declared Age Range) and Android (Google Play Age Signals), normalized into one policy-free result model. No app-specific age policy, account, legal text, persistence or UI. Nothing is called at construction or registration; an explicit `CheckAsync` is the only trigger.
 
 ## Install
