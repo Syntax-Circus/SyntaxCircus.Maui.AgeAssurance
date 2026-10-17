@@ -15,8 +15,10 @@ namespace SyntaxCircus.Maui.AgeAssurance;
 /// </summary>
 internal sealed class PlayAgeAssuranceProvider : IAgeAssuranceProvider
 {
-    // The pure mapper keeps its own copies of the Play constants so it stays testable on net10.0; fail fast if the
-    // bound Java constants ever differ.
+    // The pure mapper keeps its own copies of the Play constants so it stays testable on net10.0. If the bound Java
+    // constants ever differ, every check reports Unavailable instead of trusting a wrong mapping. Never throw here:
+    // the provider is resolved from DI during app startup, so a throw would crash the app instead of leaving the
+    // consumer's manual age gate in place.
     private static readonly bool s_constantsMatch =
         PlayAgeSignalMapper.AccessShared == IAgeSignalsStatus.Shared
         && PlayAgeSignalMapper.AccessNotShared == IAgeSignalsStatus.NotShared
@@ -28,19 +30,18 @@ internal sealed class PlayAgeAssuranceProvider : IAgeAssuranceProvider
     private readonly RequestState _state = new();
     private readonly AgeCheckRunner _runner;
 
+    private readonly UnavailableAgeAssuranceProvider _unavailable = new();
+
     public PlayAgeAssuranceProvider()
     {
-        if (!s_constantsMatch)
-        {
-            throw new InvalidOperationException("Play Age Signals constants changed; update PlayAgeSignalMapper.");
-        }
-
         _runner = new AgeCheckRunner(_state, Start, _ => { });
     }
 
     /// <inheritdoc />
     public Task<AgeCheckResult> CheckAsync(int minimumAge, bool allowPrompt, System.Threading.CancellationToken cancellationToken = default) =>
-        _runner.CheckAsync(minimumAge, allowPrompt, cancellationToken);
+        s_constantsMatch
+            ? _runner.CheckAsync(minimumAge, allowPrompt, cancellationToken)
+            : _unavailable.CheckAsync(minimumAge, allowPrompt, cancellationToken);
 
     private void Start(int request, int minimumAge, bool allowPrompt)
     {
