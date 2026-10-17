@@ -36,12 +36,29 @@
     <PackageReference Include="Xamarin.GooglePlayServices.Tasks" />
     <PackageReference Include="Xamarin.Google.Android.Play.Core.Common" />
   </ItemGroup>
+  <!-- iOS: the Declared Age Range binding (Swift shim as an embedded xcframework) is private and ships as lib/<tfm>/ dll + resources.zip. -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <ProjectReference Include="..\SyntaxCircus.Maui.AgeAssurance.iOS.Binding\SyntaxCircus.Maui.AgeAssurance.iOS.Binding.csproj" PrivateAssets="all" />
+  </ItemGroup>
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_IncludeBindingAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_IncludeBindingNativeResources</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <!-- The iOS binding keeps its native xcframework in <assembly>.resources.zip next to the dll; the app build looks for it there. -->
+  <Target Name="_IncludeBindingNativeResources">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="../SyntaxCircus.Maui.AgeAssurance.iOS.Binding/bin/$(Configuration)/$(TargetFramework)/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.resources.zip" PackagePath="lib/$(TargetFramework)$(TargetPlatformVersion)/" />
+    </ItemGroup>
+  </Target>
   <Target Name="_IncludeBindingAssemblies">
     <ItemGroup>
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'" />
+      <!-- Fixed layout instead of resolving the references: a no-build pack must not invoke their Build. The
+           referenced projects were built with the same Configuration and target framework as this one. -->
+      <_BindingAssembly Include="../SyntaxCircus.Maui.AgeAssurance.Android.Binding/bin/$(Configuration)/$(TargetFramework)/SyntaxCircus.Maui.AgeAssurance.Android.Binding.dll" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" />
+      <_BindingAssembly Include="../SyntaxCircus.Maui.AgeAssurance.iOS.Binding/bin/$(Configuration)/$(TargetFramework)/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.dll" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" />
+      <BuildOutputInPackage Include="@(_BindingAssembly)" />
     </ItemGroup>
   </Target>
   <ItemGroup>

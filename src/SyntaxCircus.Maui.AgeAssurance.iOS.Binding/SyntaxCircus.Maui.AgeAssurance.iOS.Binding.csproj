@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Binds native/AgeAssuranceBridge (Swift shim over Apple's Declared Age Range). Private to the library: not packed on
+    its own; SyntaxCircus.Maui.AgeAssurance ships this assembly (with the embedded xcframework) for net10.0-ios.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <IsBindingProject>true</IsBindingProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>SyntaxCircus.Maui.AgeAssurance.IOS.Binding</RootNamespace>
+    <AssemblyName>SyntaxCircus.Maui.AgeAssurance.iOS.Binding</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SyntaxCircus.Maui.AgeAssurance" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--
+      Must be the .xcframework, not a RuntimeIdentifier-conditioned bare .a per slice: this is a library project and
+      the RuntimeIdentifier of a consuming app does not propagate into it; the app's final link selects the slice.
+      DeclaredAgeRange is linked WEAKLY (the Swift package suppresses its autolink entry) so the app still launches on
+      iOS < 26, where the Swift code never touches the framework (guarded by #available).
+    -->
+    <NativeReference Include="..\..\native\AgeAssuranceBridge\build\AgeAssuranceBridge.xcframework">
+      <Kind>Static</Kind>
+      <SmartLink>true</SmartLink>
+      <Frameworks>UIKit Foundation</Frameworks>
+      <WeakFrameworks>DeclaredAgeRange</WeakFrameworks>
+    </NativeReference>
+  </ItemGroup>
+</Project>

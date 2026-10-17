@@ -17,11 +17,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      # TODO(native step): build the Apple Declared Age Range bridge before restore/pack, as
-      # SyntaxCircus.Maui.StoreKit does (needs `dotnet workload install ios --skip-manifest-update`):
-      #   - name: Build native AgeAssuranceBridge.xcframework
-      #     run: ./scripts/build-xcframework.sh
-      # scripts/build-xcframework.sh does not exist yet; do not enable until it lands.
+      - run: dotnet workload install ios --skip-manifest-update
+      - name: Build native AgeAssuranceBridge.xcframework
+        run: ./scripts/build-xcframework.sh
       - run: dotnet workload restore SyntaxCircus.Maui.AgeAssurance.slnx
       - run: dotnet restore SyntaxCircus.Maui.AgeAssurance.slnx
       - run: dotnet build SyntaxCircus.Maui.AgeAssurance.slnx --no-restore --configuration Release

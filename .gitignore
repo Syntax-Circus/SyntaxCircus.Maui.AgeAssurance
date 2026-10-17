@@ -196,3 +196,7 @@ local/
 .tools/
 TestResults/
 docs/enhancements
+
+# Native build output (produced by scripts/build-xcframework.sh, not checked in)
+native/AgeAssuranceBridge/build/
+native/AgeAssuranceBridge/.build/
