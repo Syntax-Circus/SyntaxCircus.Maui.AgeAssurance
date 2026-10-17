@@ -43,13 +43,19 @@
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_IncludeBindingAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_IncludeBindingNativeResources</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
-  <!-- The iOS binding keeps its native xcframework in <assembly>.resources.zip next to the dll; the app build looks for it there. -->
+  <!-- Native payloads the app build picks up from beside the binding dll:
+       - iOS: the xcframework, in <assembly>.resources.zip.
+       - Android: the Play Age Signals AAR (Java classes, resources and the consent activity's manifest entry); the
+         binding dll holds only the C# wrappers. BuildOutputInPackage would drop it (.aar is not an allowed extension). -->
   <Target Name="_IncludeBindingNativeResources">
-    <ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
       <TfmSpecificPackageFile Include="../SyntaxCircus.Maui.AgeAssurance.iOS.Binding/bin/$(Configuration)/$(TargetFramework)/SyntaxCircus.Maui.AgeAssurance.iOS.Binding.resources.zip" PackagePath="lib/$(TargetFramework)$(TargetPlatformVersion)/" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+      <TfmSpecificPackageFile Include="../SyntaxCircus.Maui.AgeAssurance.Android.Binding/bin/$(Configuration)/$(TargetFramework)/*.aar" PackagePath="lib/$(TargetFramework)$(TargetPlatformVersion)/" />
     </ItemGroup>
   </Target>
   <Target Name="_IncludeBindingAssemblies">
