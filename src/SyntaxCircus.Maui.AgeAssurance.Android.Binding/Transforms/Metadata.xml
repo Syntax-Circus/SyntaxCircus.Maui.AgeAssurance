@@ -1,0 +1,5 @@
+<metadata>
+  <!-- Internal IPC protocol and consent wrapper activity: not part of the public API, and their obfuscated base types are unbound. -->
+  <remove-node path="/api/package[@name='com.google.android.play.agesignals.protocol']" />
+  <remove-node path="/api/package[@name='com.google.android.play.agesignals']/class[@name='AgeSharingConsentWrapperActivity']" />
+</metadata>

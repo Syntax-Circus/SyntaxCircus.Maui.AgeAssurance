@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Binds the official Play Age Signals AAR (com.google.android.play:age-signals). Kept as its own project instead of
+    <AndroidMavenLibrary> inside the multi-targeted library because the generated binding code does not survive the
+    library's strict settings (TreatWarningsAsErrors + latest analyzers + nullable: CS8765, CS0114, CA1018), and
+    those cannot be relaxed for generated files of a single target framework. Internal to the library: not packed
+    on its own; the main library project embeds this assembly in its package (net10.0-android only).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <AnalysisLevel>none</AnalysisLevel>
+    <NoWarn>$(NoWarn);CS0114;CS0108;CS8765;CS8767;CA1018</NoWarn>
+    <RootNamespace>SyntaxCircus.Maui.AgeAssurance.Android.Binding</RootNamespace>
+    <AssemblyName>SyntaxCircus.Maui.AgeAssurance.Android.Binding</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <AndroidMavenLibrary Include="com.google.android.play:age-signals" Version="0.0.4" Repository="Google" />
+    <!-- age-signals 0.0.4 declares play-services-basement 18.9.0, but Xamarin.GooglePlayServices.Basement 118.9+ forces
+         AndroidX versions that conflict with what Microsoft.Maui.Controls restores (NU1608). Basement 118.x arrives
+         transitively through Xamarin.GooglePlayServices.Tasks (it cannot also be a direct PackageReference: the SDK's
+         ignore list and package map then collide), so the version floor is relaxed here. -->
+    <AndroidIgnoredJavaDependency Include="com.google.android.gms:play-services-basement:18.9.0" />
+    <PackageReference Include="Xamarin.GooglePlayServices.Tasks" VersionOverride="$(PlayServicesTasksVersion)" />
+    <PackageReference Include="Xamarin.Google.Android.Play.Core.Common" VersionOverride="$(PlayCoreCommonVersion)" />
+  </ItemGroup>
+  <!-- The Java dependency verifier reads Version from PackageReference items, which central package management leaves empty. -->
+  <Target Name="_AgeAssuranceExposePackageVersions" BeforeTargets="_VerifyJavaDependencies">
+    <ItemGroup>
+      <PackageReference Update="@(PackageReference->HasMetadata('VersionOverride'))" Version="%(PackageReference.VersionOverride)" />
+    </ItemGroup>
+  </Target>
+</Project>
